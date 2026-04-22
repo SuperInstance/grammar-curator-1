@@ -1,0 +1,98 @@
+{
+  "_comment": "Validated safe rule templates for the Recursive Grammar Engine. All templates have passed rule-sanitizer.py. Use these as the ONLY source for programmatic rule creation.",
+  "templates": {
+    "room": {
+      "required_keys": ["tagline", "theme", "ml_concept"],
+      "optional_keys": ["description", "icon", "color"],
+      "example": {
+        "name": "harbor",
+        "type": "room",
+        "production": {
+          "tagline": "Where agents arrive",
+          "theme": "onboarding",
+          "ml_concept": "initialization",
+          "description": "Safe onboarding room for fleet agents",
+          "icon": "anchor",
+          "color": "#0a2540"
+        }
+      }
+    },
+    "object": {
+      "required_keys": ["ml_concept", "parent_room"],
+      "optional_keys": ["description", "weight"],
+      "example": {
+        "name": "anchor",
+        "type": "object",
+        "production": {
+          "ml_concept": "lyapunov_stability",
+          "parent_room": "harbor",
+          "description": "Stability anchor for new agents",
+          "weight": 1.0
+        }
+      }
+    },
+    "connection": {
+      "required_keys": ["from", "to", "condition"],
+      "optional_keys": ["weight", "threshold"],
+      "example": {
+        "name": "harbor_to_forge",
+        "type": "connection",
+        "production": {
+          "from": "harbor",
+          "to": "forge",
+          "condition": "always",
+          "weight": 1.0
+        }
+      },
+      "condition_safelist": ["always", "never", "stage >= N", "elo > N", "quality > N"]
+    },
+    "meta": {
+      "required_keys": ["condition", "action", "meta_type"],
+      "optional_keys": [],
+      "example": {
+        "name": "cluster_density_monitor",
+        "type": "meta",
+        "production": {
+          "condition": "tile_cluster_density exceeds threshold",
+          "action": "spawn_room_from_cluster",
+          "meta_type": "generator"
+        }
+      },
+      "condition_safelist": [
+        "tile_cluster_density exceeds threshold",
+        "usage_count exceeds threshold",
+        "quality_score exceeds threshold",
+        "novelty_score exceeds threshold"
+      ],
+      "action_safelist": [
+        "spawn_room_from_cluster",
+        "prune_low_score_rules",
+        "crystallize_motif",
+        "noop"
+      ]
+    },
+    "meta-meta": {
+      "required_keys": ["condition", "action", "meta_type"],
+      "optional_keys": [],
+      "example": {
+        "name": "grammar_stability_guard",
+        "type": "meta-meta",
+        "production": {
+          "condition": "grammar_divergence exceeds kl_budget",
+          "action": "halt_evolution",
+          "meta_type": "guardian"
+        }
+      },
+      "_warning": "meta-meta rules modify meta-rules. Extra scrutiny required. Only fleet-ops may approve."
+    }
+  },
+  "global_constraints": {
+    "max_name_length": 128,
+    "allowed_name_chars": "a-zA-Z0-9_:-",
+    "max_production_depth": 5,
+    "max_production_keys": 50,
+    "max_string_length": 4096,
+    "forbidden_keys_in_production": ["__import__", "eval", "exec", "os.system", "subprocess"],
+    "exec_key_policy": "ALLOWED_EMPTY_ONLY"
+  }
+}
